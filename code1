@@ -9,3 +9,120 @@ unseen <- data.frame(age = 60)
 # Predict the wage for a 60-year old worker
 predict(lm_wage, unseen)
 
+#####classifier#####
+# The emails dataset is already loaded into your workspace
+
+# Show the dimensions of emails
+dim(emails)
+
+# Inspect definition of spam_classifier()
+spam_classifier <- function(x){
+  prediction <- rep(NA,length(x))
+  prediction[x > 4] <- 1
+  prediction[x >= 3 & x <= 4] <- 0
+  prediction[x >= 2.2 & x < 3] <- 1
+  prediction[x >= 1.4 & x < 2.2] <- 0
+  prediction[x > 1.25 & x < 1.4] <- 1
+  prediction[x <= 1.25] <- 0
+  return(prediction)
+}
+
+# Apply the classifier to the avg_capital_seq column: spam_pred
+spam_pred <- spam_classifier(emails$avg_capital_seq)
+
+# Compare spam_pred to emails$spam. Use ==
+spam_pred == emails$spam
+
+##################prediction######################
+# linkedin is already available in the workspace
+
+# Create the days vector
+days <- seq(1:21)
+
+# Fit a linear model called on the linkedin views per day: linkedin_lm
+linkedin_lm <- lm(linkedin ~ days)
+
+# Predict the number of views for the next three days: linkedin_pred
+future_days <- data.frame(days = 22:24)
+linkedin_pred <- predict(linkedin_lm, future_days)
+
+# Plot historical data and predictions
+plot(linkedin ~ days, xlim = c(1, 24))
+points(22:24, linkedin_pred, col = "green")
+
+#######clustering######
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Chop up iris in my_iris and species
+my_iris <- iris[-5]
+species <- iris$Species
+
+# Perform k-means clustering on my_iris: kmeans_iris.
+#The first argument is my_iris; the second argument is 3, as you want to find three groups
+kmeans_iris <- kmeans(my_iris, 3)
+
+# Compare the actual Species to the clustering using table()
+table(species, kmeans_iris$cluster)
+
+# Plot Petal.Width against Petal.Length, coloring by cluster
+plot(Petal.Length ~ Petal.Width, data = my_iris, col = kmeans_iris$cluster)
+
+#####supervised learning#####
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Take a look at the iris dataset
+str(iris)
+summary(iris)
+
+# A decision tree model has been built for you
+tree <- rpart(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, 
+              data = iris, method = "class")
+
+# A dataframe containing unseen observations
+unseen <- data.frame(Sepal.Length = c(5.3, 7.2), 
+                     Sepal.Width = c(2.9, 3.9), 
+                     Petal.Length = c(1.7, 5.4), 
+                     Petal.Width = c(0.8, 2.3))
+
+# Predict the label of the unseen observations. Print out the result.
+predict(tree, unseen, type='class')
+#Use the predict() function with the tree model as the first argument. 
+#The second argument should be a data frame containing observations of which you want to predict the label. 
+#In this case, you can use the predefined unseen data frame. 
+#The third argument should be type = "class". 
+#Simply print out the result of this prediction step.
+
+#######unsupervised learning#####
+# The cars data frame is pre-loaded
+
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Explore the cars dataset
+str(cars)
+summary(cars)
+
+# Group the dataset into two clusters: km_cars. only based on hp and mt
+km_cars <- kmeans(cars, 2)
+
+# Print out the contents of each cluster
+km_cars$cluster
+
+# The cars data frame is pre-loaded
+
+# Set random seed. Don't remove this line
+set.seed(1)
+
+# Group the dataset into two clusters: km_cars
+km_cars <- kmeans(cars, 2)
+
+# Add code: color the points in the plot based on the clusters
+plot(cars, col= km_cars$cluster)
+
+# Print out the cluster centroids
+km_cars$centers
+
+# Replace the ___ part: add the centroids to the plot
+points(km_cars$centers, pch = 22, bg = c(1, 2), cex = 2)

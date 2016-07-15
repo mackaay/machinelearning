@@ -93,3 +93,137 @@ plot(length ~ compactness, data = seeds, col=km_seeds$cluster)
 # Print out the ratio of the WSS to the BSS
 km_seeds$tot.withinss/km_seeds$betweenss
 
+
+########training and test set########
+####split data####
+# The titanic dataset is already loaded into your workspace
+
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Shuffle the dataset, call the result shuffled
+n <- nrow(titanic)
+shuffled <- titanic[sample(n),]
+
+# Split the data in train and test
+train_indices <- 1:round(0.7*n)
+train <- shuffled[train_indices, ]
+test_indices <- (round(0.7*n)+1):n
+test <- shuffled[test_indices, ]
+
+# Print the structure of train and test
+str(train)
+str(test)
+
+######first train ,then test####
+# The titanic dataset is already loaded into your workspace
+
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Shuffle the dataset; build train and test
+n <- nrow(titanic)
+shuffled <- titanic[sample(n),]
+train <- shuffled[1:round(0.7 * n),]
+test <- shuffled[(round(0.7 * n) + 1):n,]
+
+# Fill in the model that has been learned.
+tree <- rpart(Survived ~ ., train, method = "class")
+
+# Predict the outcome on the test set with tree: pred
+pred <- predict(tree, test, type = "class")
+
+# Calculate the confusion matrix: conf
+conf <- table(test$Survived, pred)
+
+# Print this confusion matrix
+conf
+
+####Using cross validation####
+# The shuffled dataset is already loaded into your workspace
+
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Initialize the accs vector
+accs <- rep(0,6)
+
+for (i in 1:6) {
+  # These indices indicate the interval of the test set
+  indices <- (((i-1) * round((1/6)*nrow(shuffled))) + 1):((i*round((1/6) * nrow(shuffled))))
+  
+  # Exclude them from the train set
+  train <- shuffled[-indices,]
+  
+  # Include them in the test set
+  test <- shuffled[indices,]
+  
+  # A model is learned using each training set
+  tree <- rpart(Survived ~ ., train, method = "class")
+  
+  # Make a prediction on the test set using tree
+  pred <- predict(tree, test, type = "class")
+  
+  # Assign the confusion matrix to conf
+  conf <- table(test$Survived, pred)
+  
+  # Assign the accuracy of this model to the ith index in accs
+  accs[i] <- sum(diag(conf))/sum(conf)
+}
+
+# Print out the mean of accs
+mean(accs)
+
+##################bias and variant##########
+####overfitting####
+# The spam filter that has been 'learned' for you
+spam_classifier <- function(x){
+  prediction <- rep(NA,length(x))
+  prediction[x > 4] <- 1
+  prediction[x >= 3 & x <= 4] <- 0
+  prediction[x >= 2.2 & x < 3] <- 1
+  prediction[x >= 1.4 & x < 2.2] <- 0
+  prediction[x > 1.25 & x < 1.4] <- 1
+  prediction[x <= 1.25] <- 0
+  return(factor(prediction, levels=c("1","0")))
+}
+
+# Apply spam_classifier to emails_full: pred_full
+pred_full <- spam_classifier(emails_full$avg_capital_seq)
+
+# Build confusion matrix for emails_full: conf_full
+conf_full <- table(emails_full$spam, pred_full)
+
+# Calculate the accuracy with conf_full: acc_full
+acc_full <- sum(diag(conf_full))/sum(conf_full)
+
+# Print acc_full
+acc_full
+
+####
+# The all-knowing classifier that has been learned for you
+# You should change the code of the classifier, simplifying it
+spam_classifier <- function(x){
+  prediction <- rep(NA,length(x))
+  prediction[x > 4] <- 1
+  prediction[x >= 3 & x <= 4] <- 0
+  prediction[x >= 2.2 & x < 3] <- 0
+  prediction[x >= 1.4 & x < 2.2] <- 0
+  prediction[x > 1.25 & x < 1.4] <- 0
+  prediction[x <= 1.25] <- 0
+  return(factor(prediction, levels=c("1","0")))
+}
+
+# conf_small and acc_small have been calculated for you
+conf_small <- table(emails_small$spam, spam_classifier(emails_small$avg_capital_seq))
+acc_small <- sum(diag(conf_small)) / sum(conf_small)
+acc_small
+
+# Apply spam_classifier to emails_full and calculate the confusion matrix: conf_full
+conf_full <- table(emails_full$spam, spam_classifier(emails_full$avg_capital_seq))
+
+# Calculate acc_full
+acc_full <- sum(diag(conf_full))/sum(conf_full)
+
+# Print acc_full
+acc_full

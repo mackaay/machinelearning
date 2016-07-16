@@ -1,0 +1,20 @@
+# The train and test set are loaded into your workspace.
+
+# Set random seed. Don't remove this line
+set.seed(1)
+
+# Load the rpart, rattle, rpart.plot and RColorBrewer package
+library(rpart)
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
+
+# Fill in the ___, build a tree model: tree
+#Use rpart() to learn a tree model and assign the result to tree. You should use three arguments:
+#The first one is a formula: Survived ~ .. This represents the function you're trying to learn. We're trying to predict the Survived column, given all other columns (writing . is the same as writing Pclass + Sex + Age in this formula).
+#The second one is the dataset on which you want to train. Remember, training is done on the train set.
+#Finally, you'll have to set method to "class" to tell rpart this is a classification problem.
+tree <- rpart(Survived ~ ., train, method = "class")
+
+# Draw the decision tree
+fancyRpartPlot(tree)

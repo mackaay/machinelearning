@@ -83,3 +83,142 @@ fancyRpartPlot(tree_i)
 acc_g
 acc_i
 
+###################k-nearest neighbour################
+# train and test are pre-loaded
+
+# Store the Survived column of train and test in train_labels and test_labels
+train_labels <- train$Survived
+test_labels <- test$Survived
+
+# Copy train and test to knn_train and knn_test
+knn_train <- train
+knn_test <- test
+
+# Drop Survived column for knn_train and knn_test
+knn_train$Survived <- NULL
+knn_test$Survived <- NULL
+
+# Normalize Pclass
+min_class <- min(knn_train$Pclass)
+max_class <- max(knn_train$Pclass)
+knn_train$Pclass <- (knn_train$Pclass - min_class) / (max_class - min_class)
+knn_test$Pclass <- (knn_test$Pclass - min_class) / (max_class - min_class)
+
+# Normalize Age
+min_age <- min(knn_train$Age)
+max_age <- max(knn_train$Age)
+knn_train$Age <- (knn_train$Age - min_age) / (max_age - min_age)
+knn_test$Age <- (knn_test$Age - min_age) / (max_age - min_age)
+
+###knn() function###
+# knn_train, knn_test, train_labels and test_labels are pre-loaded
+
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Load the class package
+library(class)
+
+# Fill in the ___, make predictions using knn: pred
+#train: observations in the training set, without the class labels, available in knn_train
+#test: observations in the test, without the class labels, available in knn_test
+#cl: factor of true class labels of the training set, available in train_labels
+#k: number of nearest neighbors you want to consider, 5 in our case
+pred <- knn(train = knn_train, test = knn_test, cl = train_labels, k = 5)
+    
+# Construct the confusion matrix: conf
+conf <- table(test_labels, pred)
+
+# Print out the confusion matrix
+conf 
+
+###k choice ####
+#A big issue with k-Nearest Neighbors is the choice of a suitable k. How many neighbors should you use to decide on the label of a new observation? 
+#Let's have R answer this question for us and assess the performance of k-Nearest Neighbor classification for increasing values of k.
+# knn_train, knn_test, train_labels and test_labels are pre-loaded
+
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Load the class package, define range and accs
+library(class)
+range <- 1:round(0.2 * nrow(knn_train))
+accs <- rep(0, length(range))
+
+for (k in range) {
+  
+  # Fill in the ___, make predictions using knn: pred
+  pred <- knn(train = knn_train, test = knn_test, cl = train_labels, k = k)
+    
+  # Fill in the ___, construct the confusion matrix: conf
+  conf <- table(test_labels, pred)
+    
+  # Fill in the ___, calculate the accuracy and store it in accs[k]
+  accs[k] <- sum(diag(conf))/sum(conf)
+}
+
+# Plot the accuracies. Title of x-axis is "k".
+plot(range, accs, xlab = "k")
+
+# Calculate the best k
+which.max(accs)
+
+##################ROC curve###########
+#https://archive.ics.uci.edu/ml/datasets/Census+Income
+# train and test are pre-loaded
+
+# Set random seed. Don't remove this line
+set.seed(1)
+
+# Build a tree on the training set: tree
+tree <- rpart(income ~ ., train, method = "class")
+
+# Predict probability values using the model: all_probs
+all_probs <- predict(tree, test, type ="prob")
+
+# Print out all_probs
+all_probs
+
+# Select second column of all_probs: probs
+probs <- all_probs[,2]
+
+# train and test are pre-loaded
+
+# Code of previous exercise
+set.seed(1)
+tree <- rpart(income ~ ., train, method = "class")
+probs <- predict(tree, test, type = "prob")[,2]
+
+# Load the ROCR library
+library(ROCR)
+
+# Make a prediction object: pred
+#Use prediction() with probs and the true labels of the test set (in the income column of test) to get a prediction object. Assign the result to pred.
+pred <- prediction(probs, test$income)
+
+# Make a performance object: perf
+#Use performance() on pred to get the ROC curve. The second and third argument of this function should be "tpr" and "fpr". These stand for true positive rate and false positive rate, respectively. Assign to result to perf.
+perf <- performance(pred, "tpr", "fpr")
+
+# Plot this curve
+plot(perf)
+
+# test and train are loaded into your workspace
+
+# Build tree and predict probability values for the test set
+set.seed(1)
+tree <- rpart(income ~ ., train, method = "class")
+probs <- predict(tree, test, type = "prob")[,2]
+
+# Load the ROCR library
+library(ROCR)
+
+# Make a prediction object: pred
+pred <- prediction(probs, test$income)
+
+# Make a performance object: perf
+perf <- performance(pred, "auc")
+
+# Print out the AUC
+perf@y.values[[1]]
+

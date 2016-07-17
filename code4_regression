@@ -14,3 +14,120 @@ lm_kang$coefficients
 # Predict and print the nose length of the escaped kangoroo
 predict(lm_kang, nose_width_new)
 
+####RMSE#####
+# kang_nose is pre-loaded in your workspace
+
+# Build model and make plot
+lm_kang <- lm(nose_length ~ nose_width, data=kang_nose)
+plot(kang_nose, xlab = "nose width", ylab = "nose length")
+abline(lm_kang$coefficients, col = "red")
+
+# Apply predict() to lm_kang: nose_length_est
+nose_length_est <- predict(lm_kang)
+
+# Calculate difference between the predicted and the true values: res
+res <- kang_nose$nose_length - nose_length_est
+
+# Calculate RMSE, assign it to rmse and print it
+rmse <- sqrt(mean(res ^ 2))
+print(rmse)
+
+#####R-square####
+# kang_nose, lm_kang and res are already loaded in your workspace
+
+# Calculate the residual sum of squares: ss_res
+ss_res <- sum(res^2)
+
+# Determine the total sum of squares: ss_tot
+ss_tot <- sum((kang_nose$nose_length-mean(kang_nose$nose_length))^2)
+ 
+# Calculate R-squared and assign it to r_sq. Also print it.
+r_sq <- 1- ss_res/ss_tot
+r_sq
+
+# Apply summary() to lm_kang
+summary(lm_kang)
+
+#http://data.worldbank.org/
+# world_bank_train and cgdp_afg is available for you to work with
+
+# Plot urb_pop as function of cgdp
+plot(world_bank_train)
+
+# Set up a linear model between the two variables: lm_wb. that models the urb_pop by the cgdp variable
+lm_wb <- lm(urb_pop~cgdp, data=world_bank_train)
+
+# Add a red regression line to your scatter plot
+abline(lm_wb$coefficients, col="red")
+
+# Summarize lm_wb and select R-squared
+summary(lm_wb)$r.squared
+
+# Predict the urban population of afghanistan based on cgdp_afg
+predict(lm_wb, cgdp_afg)
+
+# world_bank_train and cgdp_afg is available for you to work with
+
+# Plot: change the formula and xlab
+plot(urb_pop ~ log(cgdp), data = world_bank_train, 
+     xlab = "log(GDP per Capita)", 
+     ylab = "Percentage of urban population")
+
+# Linear model: change the formula
+lm_wb <- lm(urb_pop ~ log(cgdp), data = world_bank_train)
+
+# Add a red regression line to your scatter plot
+abline(lm_wb$coefficients, col = "red")
+
+# Summarize lm_wb and select R-squared
+summary(lm_wb)$r.squared
+
+# Predict the urban population of afghanistan based on cgdp_afg
+predict(lm_wb, cgdp_afg)
+
+##################multi   #############################
+# shop_data has been loaded in your workspace
+
+# Add a plot: sales as a function of inventory. Is linearity plausible?
+plot(sales ~ sq_ft, shop_data)
+plot(sales ~ size_dist, shop_data)
+plot(sales ~ inv, shop_data)
+
+# Build a linear model for net sales based on all other variables: lm_shop
+lm_shop <- lm(sales ~., data=shop_data )
+
+# Summarize lm_shop
+summary(lm_shop)
+
+# shop_data, shop_new and lm_shop have been loaded in your workspace
+
+# Plot the residuals in function of your fitted observations
+plot(lm_shop$fitted.values, lm_shop$residuals, data = lm_shop)
+
+# Make a Q-Q plot of your residual quantiles
+qqnorm(lm_shop$residuals, ylab = "Residual Quantiles")
+
+# Summarize your model, are there any irrelevant predictors?
+summary(lm_shop)
+
+# Predict the net sales based on shop_new.
+predict(lm_shop, shop_new)
+
+# choco_data has been loaded in your workspace
+
+# Add a plot:  energy/100g as function of total size. Linearity plausible?
+plot(energy ~ protein, choco_data)
+plot(energy ~ fat, choco_data)
+plot(energy ~ size, choco_data)
+
+# Build a linear model for the energy based on all other variables: lm_choco
+lm_choco <- lm(energy ~ ., data = choco_data)
+
+# Plot the residuals in function of your fitted observations
+plot(lm_choco$fitted.values, lm_choco$residuals, data = lm_choco)
+
+# Make a Q-Q plot of your residual quantiles
+qqnorm(lm_choco$residuals)
+
+# Summarize lm_choco
+summary(lm_choco)

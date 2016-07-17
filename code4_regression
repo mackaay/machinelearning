@@ -1,0 +1,16 @@
+#####################simple linear regression#############
+#http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/slr/frames/frame.html
+## The kang_nose dataset and nose_width_new are already loaded in your workspace.
+
+# Plot nose length as function of nose width.
+plot(kang_nose, xlab = "nose width", ylab = "nose length")
+
+# Fill in the ___, describe the linear relationship between the two variables: lm_kang
+lm_kang <- lm(nose_length ~ nose_width, data = kang_nose)
+
+# Print the coefficients of lm_kang
+lm_kang$coefficients
+
+# Predict and print the nose length of the escaped kangoroo
+predict(lm_kang, nose_width_new)
+

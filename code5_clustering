@@ -103,3 +103,101 @@ table(run_km$cluster, run_km_sc$cluster)
 # Calculate Dunn's index: dunn_km_sc. Print it.
 dunn_km_sc <- dunn(clusters= run_km_sc$cluster, Data = run_record_sc)
 dunn_km_sc
+
+######################hierarchical clustering#########################
+#####Single Hierarchical Clustering#######
+# The dataset run_record_sc has been loaded in your workspace
+
+# Apply dist() to run_record_sc: run_dist
+run_dist <- dist(run_record_sc)
+
+# Apply hclust() to run_dist: run_single
+run_single <- hclust(run_dist, method="single")
+
+# Apply cutree() to run_single: memb_single
+memb_single <- cutree(run_single, k=5)
+
+# Apply plot() on run_single to draw the dendrogram
+plot(run_single)
+
+# Apply rect.hclust() on run_single to draw the boxes
+rect.hclust(run_single, k = 5, border = 2:6)
+
+####complete hierarchical clustering####
+# run_record_sc is pre-loaded
+
+# Code for single-linkage
+run_dist <- dist(run_record_sc, method = "euclidean")
+run_single <- hclust(run_dist, method = "single")
+memb_single <- cutree(run_single, 5)
+plot(run_single)
+rect.hclust(run_single, k = 5, border = 2:6)
+
+# Apply hclust() to run_dist: run_complete
+run_complete <- hclust(run_dist, method = "complete")
+
+# Apply cutree() to run_complete: memb_complete
+memb_complete <- cutree(run_complete, k =5)
+
+# Apply plot() on run_complete to draw the dendrogram
+plot(run_complete)
+
+# Apply rect.hclust() on run_complete to draw the boxes
+rect.hclust(run_complete, k = 5, border = 2:6)
+
+# table() the clusters memb_single and memb_complete. Put memb_single in the rows
+table(memb_single, memb_complete)
+
+####Hierarchical vs k-means####
+# run_record_sc, run_km_sc, memb_single and memb_complete are pre-calculated
+
+# Set random seed. Don't remove this line.
+set.seed(100)
+
+# Dunn's index for k-means: dunn_km
+dunn_km <- dunn(cluster = run_km_sc$cluster, Data = run_record_sc)
+
+# Dunn's index for single-linkage: dunn_single
+dunn_single <- dunn(cluster = memb_single, Data = run_record_sc)
+
+# Dunn's index for complete-linkage: dunn_complete
+dunn_complete <- dunn(cluster = memb_complete, Data = run_record_sc)
+
+# Compare k-means with single-linkage
+table(run_km_sc$cluster, memb_single)
+
+# Compare k-means with complete-linkage
+table(run_km_sc$cluster, memb_complete)
+# The single-linkage method that caused chaining effects, actually returned the most compact and separated clusters in this case… 
+#If you think about, it can make sense. The simple linkage method puts every outlier in its own cluster, increasing the intercluster distances and reducing the diameters, hence giving a higher Dunn's index. 
+#Therefore, you could conclude that the single linkage method did a fine job identifying the outliers. 
+#However, if you'd like to report your clusters to the local newspapers, then complete linkage or k-means are probably the better choice!
+
+####case###
+#http://www.edureka.co/blog/implementing-kmeans-clustering-on-the-crime-dataset/
+# Set random seed. Don't remove this line.
+set.seed(1)
+
+# Scale the dataset: crime_data_sc
+crime_data_sc <- scale(crime_data)
+
+# Perform k-means clustering: crime_km
+crime_km <- kmeans(crime_data_sc, 4, nstart =20)
+
+# Perform single-linkage hierarchical clustering
+## Calculate the distance matrix: dist_matrix
+dist_matrix <- dist(crime_data_sc)
+
+## Calculate the clusters using hclust(): crime_single
+crime_single <- hclust(dist_matrix, method = "single")
+
+## Cut the clusters using cutree: memb_single
+memb_single <- cutree(crime_single, k = 4)
+
+# Calculate the Dunn's index for both clusterings: dunn_km, dunn_single
+dunn_km <- dunn(cluster = crime_km$cluster, Data = crime_data_sc)
+dunn_single <- dunn(cluster = memb_single, Data = crime_data_sc)
+
+# Print out the results
+dunn_km
+dunn_single
